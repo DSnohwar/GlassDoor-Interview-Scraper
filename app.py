@@ -13,6 +13,7 @@ def scrape_interview_data(base_url, num_pages):
     chrome_options = webdriver.ChromeOptions() 
     chrome_options.add_argument("--disable-blink-features")
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    chrome_options.add_argument("--headless")
     driver = webdriver.Chrome(options=chrome_options, service=Service(ChromeDriverManager().install()))
     params = {
         "source": "Object.defineProperty(navigator, 'webdriver', { get: () => undefined })"
