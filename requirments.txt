@@ -1,5 +1,0 @@
-pandas
-openpyxl
-beautifulsoup4
-selenium
-webdriver_manager
