@@ -7,18 +7,21 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from xvfbwrapper import Xvfb  # Import Xvfb
 
 # Function to scrape interview data from Glassdoor
 def scrape_interview_data(base_url, num_pages):
+    # Start a virtual display (Xvfb) for headless mode in streamlit cloud
+    vdisplay = Xvfb()
+    vdisplay.start()
     # Set up Chrome options
     chrome_options = Options()
     chrome_options.add_argument("--disable-blink-features")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-    chrome_options.add_argument("--headless=new")
-    chrome_options.add_argument("--remote-debugging-port=9222")  # Required for headless mode
-    chrome_options.add_argument("--disable-dev-shm-usage")  # Required for cloud environments
+    chrome_options.add_argument("--remote-debugging-port=9222")  
+    chrome_options.add_argument("--disable-dev-shm-usage")
 
     # Specify the path to ChromeDriver in Streamlit Cloud
     chromedriver_path = "/usr/bin/chromedriver"
@@ -112,11 +115,13 @@ def main():
 
 # Function to generate download link for files
 def get_download_link(file_path, text):
-    with open(file_path, 'rb') as f:
-        data = f.read()
-    b64 = base64.b64encode(data).decode('utf-8')
-    href = f'<a href="data:file/xlsx;base64,{b64}" download="{file_path}">{text}</a>'
-    return href
+    try:
+        with open(file_path, 'rb') as f:
+            data = f.read()
+        b64 = base64.b64encode(data).decode('utf-8')
+        return f'<a href="data:file/xlsx;base64,{b64}" download="{file_path}">{text}</a>'
+    except FileNotFoundError:
+        return "File not found."
 
 if __name__ == "__main__":
     main()
