@@ -17,7 +17,7 @@ def scrape_interview_data(base_url, num_pages):
     vdisplay.start()
     
     chrome_options = Options()
-    chrome_options.add_argument("--headless=new")  # Ensure headless mode is used
+    # chrome_options.add_argument("--headless=new")  # Ensure headless mode is used
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
