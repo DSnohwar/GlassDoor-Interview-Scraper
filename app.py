@@ -16,7 +16,7 @@ def scrape_interview_data(base_url, num_pages):
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-    chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--remote-debugging-port=9222")  # Required for headless mode
     chrome_options.add_argument("--disable-dev-shm-usage")  # Required for cloud environments
 
@@ -31,7 +31,7 @@ def scrape_interview_data(base_url, num_pages):
     for page_number in range(1, num_pages + 1):
         url = base_url.format(page_number)
         driver.get(url)
-        time.sleep(2)  # Wait for the page to load
+        time.sleep(3) # Wait for the page to load
 
         soup = BeautifulSoup(driver.page_source, 'lxml')
 
