@@ -75,6 +75,7 @@ def scrape_interview_data(base_url, num_pages):
             interview_data.append([interview_date, role_applied_for, candidate_detail, Offer, Experience, Difficulty, application, process, question])
 
     driver.quit()
+    vdisplay.stop()  # Stop virtual display
     return interview_data
 
 # Main function to run the Streamlit app
