@@ -7,27 +7,28 @@ RUN apt-get update && apt-get install -y \
 	unzip \
 	gnupg \
 	&& wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-	&& sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list' \
+	&& echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
 	&& apt-get update \
 	&& apt-get install -y google-chrome-stable \
 	&& rm -rf /var/lib/apt/lists/*
 
-# Install ChromeDriver
-RUN wget -q https://chromedriver.storage.googleapis.com/$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE)/chromedriver_linux64.zip \
+# Install ChromeDriver (matching Chrome version)
+RUN CHROME_VERSION=$(google-chrome --version | awk '{print $3}' | cut -d '.' -f1) \
+	&& wget -q "https://chromedriver.storage.googleapis.com/$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")/chromedriver_linux64.zip" \
 	&& unzip chromedriver_linux64.zip \
 	&& mv chromedriver /usr/bin/chromedriver \
 	&& chmod +x /usr/bin/chromedriver \
 	&& rm chromedriver_linux64.zip
 
-# Copy your app code
+# Copy application code
 COPY . /app
 WORKDIR /app
 
 # Install Python dependencies
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose the Streamlit port
+# Expose Streamlit port
 EXPOSE 8501
 
-# Run the app
+# Run Streamlit app
 CMD ["streamlit", "run", "app.py"]
