@@ -80,7 +80,7 @@ def main():
 
     # Input fields for base URL and number of pages
     base_url = st.text_input("Enter the Company Interviews page base URL:", "https://www.glassdoor.co.in/Interview/Tata-Consultancy-Services-Interview-Questions-E13461.htm")
-    num_pages = st.number_input("Enter the number of pages to scrape:", min_value=1, max_value=111, value=10, step=1)
+    num_pages = st.number_input("Enter the number of pages to scrape:", min_value=1, max_value=111, value=1, step=1)
     base_url = base_url.replace(".htm", "_P{}.htm")
 
     # Button to trigger scraping
