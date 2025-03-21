@@ -35,21 +35,40 @@ def scrape_interview_data(base_url, num_pages):
 
         soup = BeautifulSoup(driver.page_source, 'lxml')
 
-        interview_containers = soup.find_all('div', class_='mt-0 mb-0 my-md-std p-std gd-ui-module css-cup1a5 ec4dwm00')
+        # Locate the main interview list container
+        interview_list_container = soup.find('div', {'data-test': 'InterviewList'})
+        if not interview_list_container:
+            print(f"No interviews found on page {page_number}")
+            continue
+        
+        # Extract each interview from within this container
+        interview_containers = interview_list_container.find_all('div', class_='module-container_moduleContainer__tpBfv')
+        print(f"Found {len(interview_containers)} interview containers on page {page_number}")
+
         for interview in interview_containers:
-            interview_date = interview.find('time').get_text() if interview.find('time') else "N/A"
-            role_applied_for = interview.find('h2', class_='mt-0 mb-xxsm css-93svrw el6ke055').get_text() if interview.find('h2', class_='mt-0 mb-xxsm css-93svrw el6ke055') else "N/A"
-            candidate_detail = interview.find('p', class_='mt-0 mb css-13r90be e1lscvyf1').get_text() if interview.find('p', class_='mt-0 mb css-13r90be e1lscvyf1') else "N/A"
-            ratings = interview.find_all('span', class_="mb-xxsm")
-            Offer = ratings[0].get_text() if len(ratings) > 0 else "N/A"
-            Experience = ratings[1].get_text() if len(ratings) > 1 else "N/A"
-            Difficulty = ratings[2].get_text() if len(ratings) > 2 else "N/A"
-            application = interview.find('p', class_='mt-xsm mb-std').get_text() if interview.find('p', class_='mt-xsm mb-std') else "N/A"
-            process_element = interview.find('p', class_='css-lyyc14 css-w00cnv mt-xsm mb-std')
-            if not process_element:
-                process_element = interview.find('p', class_='css-w00cnv mt-xsm mb-std')
-            process = process_element.get_text() if process_element else "N/A"
-            question = interview.find("span", class_="d-inline-block mb-sm").get_text() if interview.find("span", class_="d-inline-block mb-sm") else "N/A"
+            interview_date = interview.find('span', class_='timestamp_reviewDate__dsF9n')
+            interview_date = interview_date.get_text(strip=True) if interview_date else "N/A"
+
+            role_applied_for = interview.find('h3', class_='heading_Heading__BqX5J')
+            role_applied_for = role_applied_for.get_text(strip=True) if role_applied_for else "N/A"
+
+            candidate_detail = interview.find('p', class_='interview-details_textStyle__gmhSJ')
+            candidate_detail = candidate_detail.get_text(strip=True) if candidate_detail else "N/A"
+
+            ratings = interview.find_all('div', class_='rating-icon_ratingContainer__9UoJ6')
+            Offer = ratings[0].get_text(strip=True) if len(ratings) > 0 else "N/A"
+            Experience = ratings[1].get_text(strip=True) if len(ratings) > 1 else "N/A"
+            Difficulty = ratings[2].get_text(strip=True) if len(ratings) > 2 else "N/A"
+
+            application = interview.find('p', class_='interview-details_textStyle__gmhSJ')
+            application = application.get_text(strip=True) if application else "N/A"
+
+            process = interview.find('div', class_='interview-details_interviewText__YH2ZO')
+            process = process.get_text(strip=True) if process else "N/A"
+
+            question = interview.find('div', class_='interview-details_interviewText__YH2ZO')
+            question = question.get_text(strip=True) if question else "N/A"
+
             interview_data.append([interview_date, role_applied_for, candidate_detail, Offer, Experience, Difficulty, application, process, question])
 
     driver.quit()
@@ -71,17 +90,25 @@ def main():
         # Scrape interview data
         interview_data = scrape_interview_data(base_url, num_pages)
 
+        print(interview_data)
+
         # Convert data to DataFrame
         df = pd.DataFrame(interview_data, columns=['Interview Date', 'Role Applied For', 'Candidate Detail', 'Offer','Experience','Difficulty', 'Application', 'Process', 'Questions Asked'])
 
+        print(df.head())
+        
+
         # Save DataFrame to Excel and create download link
         with st.spinner("Saving data to Excel..."):
-            df.to_excel('Company_interview_details.xlsx', index=False)
+            if df.empty:
+                print("DataFrame is empty!")
+            else:
+                df.to_excel("output.xlsx", index=False)
         
         st.success("Data saved successfully!")
 
         # Create download link for Excel file
-        st.markdown(get_download_link('Company_interview_details.xlsx', 'Download Excel file'), unsafe_allow_html=True)
+        st.markdown(get_download_link('output.xlsx', 'Download Excel file'), unsafe_allow_html=True)
 
 # Function to generate download link for files
 def get_download_link(file_path, text):
